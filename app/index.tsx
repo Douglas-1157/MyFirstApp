@@ -50,8 +50,10 @@ export default function Login() {
             setTimeout(() => {
                 if (email === 'dodo69marques@gmail.com' && password === 'kauaebonito') {
                     router.replace('/home');  // Navega para a Home
+                    console.log('Logado com sucesso!')
                 } else {
                     Alert.alert('Erro', 'Usuário ou senha incorretos!');
+                    console.log('Tente novamente')
                 }
                 setLoading(false);
             }, 2000);

@@ -30,7 +30,38 @@ export const style = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#fff'
-  }
+  },
+
+  boxInput: {
+    width: 300,
+    height: 50,
+    borderWidth: 1,
+    borderRadius: 60,
+    marginTop: 135,
+    marginRight: 50,
+    alignItems: 'center',
+    paddingHorizontal: 5,
+    borderColor: '#6b0dc4',
+    paddingLeft: 5,
+  },
+
+
+ Input: {
+    width: '100%',
+    height: '100%',
+    paddingLeft: 15,
+    paddingRight: 30,
+    fontSize: 16,
+    borderRadius: 60,
+    
+ },
+
+  Icon: {
+    position: 'absolute',
+    right: 20,
+    top: '50%',
+    transform: [{ translateY: -12 }], //ta mantendo o icone alinhado
+  },
 
 
 })

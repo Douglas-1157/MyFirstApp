@@ -98,8 +98,8 @@ export const style = StyleSheet.create({
     borderColor: '#000000',
     shadowColor: "#000000",
     shadowOffset: {
-      width: 0,
-      height: 12,
+      width: 20,
+      height: 20,
     },
     shadowOpacity: 0.58,
     shadowRadius: 16.00,
@@ -136,7 +136,7 @@ export const style = StyleSheet.create({
     color: '#6b0dc4',
     fontWeight: 'bold',
     alignItems: 'center',
-    flexDirection: 'row',
+    
     padding: 50,
     marginTop: 850,
 
