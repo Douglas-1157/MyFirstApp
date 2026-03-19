@@ -122,23 +122,23 @@ export const style = StyleSheet.create({
     color: '#fff',
     letterSpacing: 1,
   },
+
   TextBottom: {
-    padding: 50,
     fontSize: 16,
     marginTop: 85,
+    flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
-    flexDirection: 'row'
-  
   },
 
   TextBottomCreate: {
     fontSize: 16,
     color: '#6b0dc4',
     fontWeight: 'bold',
-    alignItems: 'center',
-    
-    padding: 50,
-    marginTop: 850,
+    marginLeft: 0,
+    padding: 0,
+    marginTop: 0,
+
 
   },
 
@@ -153,10 +153,73 @@ export const style = StyleSheet.create({
     fontWeight: 'bold'
   },
 
-  
-  
+  BoxText: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: -70
 
- 
-})
+  },
+
+  center: {
+    flex: 1,
+    alignItems: "center",
+    gap: 10,
+    top: 180,
+  },
+
+  title: {
+    fontSize: 26,
+    fontWeight: "600",
+    letterSpacing: -0.3,
+  },
+
+  TextRecoveryColorProfile: {
+    color: '#000'
+  },
+
+  containerFoto: {
+    marginBottom: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  circuloFoto: {
+    width: 120,
+    height: 120,
+    borderRadius: 120,
+    backgroundColor: '#E6DFF3', 
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#6b0dc4',
+    marginTop: 0,
+  },
+
+  imageFoto: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 120,
+    resizeMode: 'cover'
+  },
+
+  iconPlus: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    backgroundColor: '#6b0dc4',
+    borderRadius: 12,
+    width: 24,
+    height: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#fff',
+  },
+
+});
+
+
+
+
 
 export default style;

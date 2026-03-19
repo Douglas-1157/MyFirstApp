@@ -5,9 +5,12 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import React, { useState } from "react";
-import { ActivityIndicator, Alert, Image, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, Text, TextInput, TouchableOpacity, View, Pressable } from 'react-native';
 import { style } from "./styles";
 import { useNavigation } from 'expo-router'; //para poder navegar entre as paginas
+import { StatusBar } from "expo-status-bar";
+import { SymbolView } from "expo-symbols";
+import { useTheme } from "@react-navigation/native";
 
 
 export default function Login() {
@@ -22,18 +25,19 @@ export default function Login() {
   }, [navigation]); */}
 
 
-
-
+    
+    
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [user, setUser] = useState('');
     const [loading, setLoading] = useState(false);
     const [isPasswordVisible, setIsPasswordVisible] = useState(false); // visibilidade da senha
-    const [fontsLoaded] = useFonts({ StoryScript_400Regular }); // Carrega a fonte pae
+    const [fontsLoaded] = useFonts({ StoryScript_400Regular }); // Carrega a fonte 
 
 
 
     if (!fontsLoaded) {
-        return <ActivityIndicator size="large" color="#0000ff" />; // Exibe um indicador d q ta carregando
+        return <ActivityIndicator size="large" color="#0000ff" />; // Exibe um indicador visual de loading
     }
 
 
@@ -42,13 +46,13 @@ export default function Login() {
             setLoading(true);
 
             if (!email || !password) {
-                setLoading(false); // Importante resetar o icone de loading se ngm digitar nada ou se falhar
+                setLoading(false); // reseta o icone de loading se não houver digitação ou se falhar
                 return Alert.alert('Atenção!', 'Informe os campos obrigatórios!');
             }
 
             // Simulação de verificação
             setTimeout(() => {
-                if (email === 'dodo69marques@gmail.com' && password === 'kauaebonito') {
+                if (email === 'a' && password === 'a') {
                     router.replace('/home');  // Navega para a Home
                     console.log('Logado com sucesso!')
                 } else {
@@ -65,7 +69,8 @@ export default function Login() {
     }
 
     return (
-        <LinearGradient colors={['#ffffff', '#fff']} style={style.Container}>
+   
+        <LinearGradient colors={['#fff', '#fff']} style={style.Container}>
             <View style={style.boxTop}>
                 <Image
                     source={require('../app/(tabs)/boneca.png')}
@@ -161,11 +166,21 @@ export default function Login() {
                     </TouchableOpacity>
                 </LinearGradient>
 
-                <Text style={style.TextRecovery}>Esqueceu a <Text style={style.TextRecoveryColor}>Senha?</Text></Text>
-                <Text style={style.TextBottom}>Não tem conta? <Link href="/profile" style={style.TextBottomCreate}>Crie agora!</Link></Text>
+                <Text style={style.TextRecovery}>Esqueceu a <Text style={style.TextRecoveryColor}>senha?</Text></Text>
+                <Text style={style.TextBottom}> 
+                    Não tem conta?
+                </Text>
+                    <TouchableOpacity onPress={() => router.push('/profile')}>
+                        <Text style={style.TextBottomCreate}>Crie agora!</Text>
+                    </TouchableOpacity>
+                
 
 
             </View>
         </LinearGradient>
+
+                        
+                
+
     );
 }

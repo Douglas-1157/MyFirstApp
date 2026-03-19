@@ -32,6 +32,13 @@ export const style = StyleSheet.create({
 
     Icon: {
 
-    }
+    },
+
+
+
+
+
+
+    
 
 })

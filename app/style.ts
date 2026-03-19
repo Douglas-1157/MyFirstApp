@@ -63,6 +63,9 @@ export const style = StyleSheet.create({
     transform: [{ translateY: -12 }], //ta mantendo o icone alinhado
   },
 
+  
+  
+
 
 })
 
