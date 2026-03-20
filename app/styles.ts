@@ -142,16 +142,23 @@ export const style = StyleSheet.create({
 
   },
 
-  TextRecovery: {
-    padding: 10,
+ TextRecovery: {
     fontSize: 16,
+    color: '#000', 
+},
 
-  },
-
-  TextRecoveryColor: {
+TextRecoveryColor: {
+    fontSize: 16,
     color: '#6b0dc4',
-    fontWeight: 'bold'
-  },
+    fontWeight: 'bold',
+},
+
+recoveryContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 20, 
+},
 
   BoxText: {
     justifyContent: 'center',
@@ -187,7 +194,7 @@ export const style = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 120,
-    backgroundColor: '#E6DFF3', 
+    backgroundColor: '#E6DFF3',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
@@ -215,6 +222,25 @@ export const style = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#fff',
   },
+
+  TextBottomCreateRecovery: {
+    fontSize: 16,
+    color: '#6b0dc4',
+    fontWeight: 'bold',
+    marginLeft: 0,
+    padding: 0,
+    marginTop: 0
+    
+  },
+
+  TextBottomRecovery: {
+    fontSize: 16,
+    marginTop: 300,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+
+  }
 
 });
 

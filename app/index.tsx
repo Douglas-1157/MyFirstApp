@@ -17,6 +17,7 @@ import { collection, query, where, getDocs } from "firebase/firestore";
 
 export default function Login() {
 
+    //salva as coisas
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [user, setUser] = useState('');
@@ -31,54 +32,57 @@ export default function Login() {
     //função pra fzr o login
 
     async function getLogin() {
-    try {
-        setLoading(true);
+        try {
+            setLoading(true);
 
-        if (!email || !password) {
+            if (!email || !password) {
+                setLoading(false);
+                return Alert.alert('Atenção!', 'Informe os campos obrigatórios!');
+            }
+
+            //Referência da tabela de usuários no Firebase
+            const usersRef = collection(db, "usuarios");
+            // Tira os espaços em branco 
+            const valorDigitado = email.trim();
+
+            //Busca no banco se existe algum documento com esse email
+            let q = query(usersRef, where("email", "==", valorDigitado));
+            let querySnapshot = await getDocs(q);
+
+            // se n achar o email, busca o usuario
+            if (querySnapshot.empty) {
+                q = query(usersRef, where("nome", "==", valorDigitado));
+                querySnapshot = await getDocs(q);
+            }
+
+            // se n tiver nd
+            if (querySnapshot.empty) {
+                setLoading(false);
+                return Alert.alert('Erro', 'Usuário ou E-mail não encontrado!');
+            }
+
+            //Pega os dados do primeiro usuário que o Firebase encontrou
+            const userData = querySnapshot.docs[0].data();
+
+            // verifica a senha
+            if (userData.senha === password) {
+                console.log('Logado com sucesso!');
+                router.replace('/home');
+            } else {
+                Alert.alert('Erro', 'Senha incorreta!');
+            }
+
+            //se tiver erro no banco de dados ou internet roda isso aqui
+        } catch (error) {
+            console.error("Erro no login:", error);
+            Alert.alert('Erro', 'Houve um problema na conexão.');
+        } finally {
             setLoading(false);
-            return Alert.alert('Atenção!', 'Informe os campos obrigatórios!');
         }
-
-        const usersRef = collection(db, "usuarios");
-        const valorDigitado = email.trim();
-
-        //busca o email
-        let q = query(usersRef, where("email", "==", valorDigitado));
-        let querySnapshot = await getDocs(q);
-
-        // se n achar o email, busca o usuario
-        if (querySnapshot.empty) {
-            q = query(usersRef, where("nome", "==", valorDigitado));
-            querySnapshot = await getDocs(q);
-        }
-
-        // se n tiver nd
-        if (querySnapshot.empty) {
-            setLoading(false);
-            return Alert.alert('Erro', 'Usuário ou E-mail não encontrado!');
-        }
-
-        const userData = querySnapshot.docs[0].data();
-
-        // verifica a senha
-        if (userData.senha === password) {
-            console.log('Logado com sucesso!');
-            router.replace('/home');
-        } else {
-            Alert.alert('Erro', 'Senha incorreta!');
-        }
-
-        //se tiver erro no login
-    } catch (error) {
-        console.error("Erro no login:", error);
-        Alert.alert('Erro', 'Houve um problema na conexão.');
-    } finally {
-        setLoading(false);
     }
-}
 
     return (
-   
+
         <LinearGradient colors={['#fff', '#fff']} style={style.Container}>
             <View style={style.boxTop}>
                 <Image
@@ -175,21 +179,27 @@ export default function Login() {
                     </TouchableOpacity>
                 </LinearGradient>
 
-                <Text style={style.TextRecovery}>Esqueceu a <Text style={style.TextRecoveryColor}>senha?</Text></Text>
-                <Text style={style.TextBottom}> 
+                <View style={style.recoveryContainer}>
+                    <Text style={style.TextRecovery}>Esqueceu a </Text>
+
+                    <TouchableOpacity onPress={() => router.push('/recovery')}>
+                        <Text style={style.TextRecoveryColor}>senha?</Text>
+                    </TouchableOpacity>
+                </View>
+                <Text style={style.TextBottom}>
                     Não tem conta?
                 </Text>
-                    <TouchableOpacity onPress={() => router.push('/profile')}>
-                        <Text style={style.TextBottomCreate}>Crie agora!</Text>
-                    </TouchableOpacity>
-                
+                <TouchableOpacity onPress={() => router.push('/profile')}>
+                    <Text style={style.TextBottomCreate}>Crie agora!</Text>
+                </TouchableOpacity>
+
 
 
             </View>
         </LinearGradient>
 
-                        
-                
+
+
 
     );
 }

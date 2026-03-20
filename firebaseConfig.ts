@@ -3,23 +3,23 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { LogBox } from 'react-native';
 
-// Suas chaves de configuração
+
 const firebaseConfig = {
-  apiKey: "AIzaSyCHPgx4V1MCLnX9Qq3Xmy6DMgRwbMoy1V0",
-  authDomain: "uply-c1b62.firebaseapp.com",
-  projectId: "uply-c1b62",
-  storageBucket: "uply-c1b62.firebasestorage.app",
-  messagingSenderId: "929382991443",
-  appId: "1:929382991443:web:0186559f4afa5bb9c128a6",
-  measurementId: "G-G4CQGCHG4J"
+  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
-// Inicializa o Firebase
+
 const app = initializeApp(firebaseConfig);
 
-// Exporta o que vamos usar nas telas
+
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
-// Mata o aviso chato do AsyncStorage que aparece no terminal
+
 LogBox.ignoreLogs(['@firebase/auth: Auth (12.11.0):']);

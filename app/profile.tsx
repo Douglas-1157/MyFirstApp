@@ -17,38 +17,40 @@ import { collection, addDoc } from "firebase/firestore";
 
 
 export default function Login() {
+    //esses estados aq e pra guardar oq o usuario digitar
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [user, setUser] = useState('');
-    const [image, setImage] = useState<string | null>(null); // Estado para a imagem
+    const [image, setImage] = useState<string | null>(null); 
     const [loading, setLoading] = useState(false);
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [fontsLoaded] = useFonts({ StoryScript_400Regular });
 
+    //se a fonte n carregar, mostra um icone de loading na tela ate carregar
     if (!fontsLoaded) {
         return <ActivityIndicator size="large" color="#0000ff" />;
     }
 
-    // Função para selecionar a imagem
-    const pickImage = async () => {
-        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (status !== 'granted') {
-            Alert.alert("Permissão necessária", "Precisamos de acesso às suas fotos para continuar."); //!!!!n ta aparecendo na tela, precisa corrigir dps!!!!
-            return;
-        }
+ const pickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+        Alert.alert("Permissão necessária", "Precisamos de acesso às suas fotos.");
+        return;
+    }
 
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ['images'],
-            allowsEditing: true,
-            aspect: [1, 1],
-            quality: 1,
-        });
+    let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'], 
+        allowsEditing: true, 
+        aspect: [1, 1], 
+        quality: 0.1, // dimunui a qualidade da foto pra aceitar mais imagens
+    });
 
-        if (!result.canceled) {
-            setImage(result.assets[0].uri);
-        }
-    };
+    if (!result.canceled) {
+        setImage(result.assets[0].uri);
+    }
+};
 
+    //O Firebase Firestore não aceitou o arquivo normal, então converte a imagem pra uma string gigante q chama d "base64"
     const imageToBase64 = async (uri: string) => {
         try {
             const response = await fetch(uri);
@@ -65,6 +67,7 @@ export default function Login() {
         }
     };
 
+    //funcao pro login 
     async function getLogin() {
         try {
             setLoading(true);
@@ -75,15 +78,15 @@ export default function Login() {
                 return Alert.alert('Atenção!', 'Preencha todos os campos e selecione uma foto!');
             }
 
-            // 1. Converte a foto em texto (Base64) para o Firestore aceitar, se n da errado
+            //  troca a foto pra string pra passar pro banco
             const fotoEmString = await imageToBase64(image);
 
             if (!fotoEmString) {
                 setLoading(false);
-                return Alert.alert('Erro', 'Problema ao processar a foto.');
+                return Alert.alert('Erro', 'Problema ao carregar a foto.');
             }
 
-            // Salva em usuarios no Firebase
+            // Salva em usuarios no Firebase. obs: da pra replicar e criar mais pastas no banco de dados 
             await addDoc(collection(db, "usuarios"), {
                 nome: user,
                 email: email,
