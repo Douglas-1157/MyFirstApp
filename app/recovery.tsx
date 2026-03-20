@@ -5,7 +5,7 @@ import { MaterialIcons, FontAwesome, MaterialCommunityIcons } from '@expo/vector
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from "react";
 import { ActivityIndicator, Alert, Text, TextInput, TouchableOpacity, View, Image } from 'react-native';
-import * as ImagePicker from 'expo-image-picker'; 
+import * as ImagePicker from 'expo-image-picker';
 import { style } from "./styles";
 import { StatusBar } from "expo-status-bar";
 import { db } from './../firebaseConfig';
@@ -26,7 +26,7 @@ export default function Login() {
         return <ActivityIndicator size="large" color="#0000ff" />;
     }
 
- 
+
     return (
         <LinearGradient colors={['#ffffff', '#fff']} style={style.Container}>
             <StatusBar style="dark" />
@@ -60,16 +60,19 @@ export default function Login() {
                     </TouchableOpacity>
                 </LinearGradient>
 
-                <Text style={style.TextRecovery}>
-                    Envia um codigo pro seu email <Text style={style.TextRecoveryColorProfile}>cadastrado!</Text>
-                </Text>
+                <View style={style.mensagemRecovery}>
+                    <Text style={style.TextRecovery}>
+                        Envia um codigo pro seu email <Text style={style.TextRecoveryColorProfile}>cadastrado!</Text>
+                    </Text>
+                </View>
+                
 
                 <View style={style.BoxText}>
                     <Text style={style.TextBottomRecovery}>Lembrou a conta?</Text>
                     <TouchableOpacity onPress={() => router.push('/')}>
                         <Text style={style.TextBottomCreateRecovery}> Faça login</Text>
                     </TouchableOpacity>
-                </View>
+            </View>
             </View>
         </LinearGradient>
     );

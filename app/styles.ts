@@ -240,6 +240,11 @@ recoveryContainer: {
     justifyContent: 'center',
     alignItems: 'center',
 
+  },
+
+  mensagemRecovery:{
+    marginTop: 20,
+
   }
 
 });
