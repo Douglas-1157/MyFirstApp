@@ -5,9 +5,16 @@ import { MaterialIcons, FontAwesome, MaterialCommunityIcons } from '@expo/vector
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from "react";
 import { ActivityIndicator, Alert, Text, TextInput, TouchableOpacity, View, Image } from 'react-native';
-import * as ImagePicker from 'expo-image-picker'; // Importar o Picker
+import * as ImagePicker from 'expo-image-picker'; 
 import { style } from "./styles";
 import { StatusBar } from "expo-status-bar";
+import { db } from './../firebaseConfig';
+import { collection, addDoc } from "firebase/firestore";
+
+
+
+
+
 
 export default function Login() {
     const [email, setEmail] = useState('');
@@ -26,7 +33,7 @@ export default function Login() {
     const pickImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (status !== 'granted') {
-            Alert.alert("Permissão necessária", "Precisamos de acesso às suas fotos para continuar."); //n ta aparecendo na tela...
+            Alert.alert("Permissão necessária", "Precisamos de acesso às suas fotos para continuar."); //!!!!n ta aparecendo na tela, precisa corrigir dps!!!!
             return;
         }
 
@@ -42,31 +49,63 @@ export default function Login() {
         }
     };
 
+    const imageToBase64 = async (uri: string) => {
+        try {
+            const response = await fetch(uri);
+            const blob = await response.blob();
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        } catch (error) {
+            console.error("Erro ao converter imagem:", error);
+            return null;
+        }
+    };
+
     async function getLogin() {
         try {
             setLoading(true);
 
-            if (!email || !password || !user) {
+            // pra ver se colocou tudo
+            if (!email || !password || !user || !image) {
                 setLoading(false);
-                return Alert.alert('Atenção!', 'Informe os campos obrigatórios!');
+                return Alert.alert('Atenção!', 'Preencha todos os campos e selecione uma foto!');
             }
 
-            setTimeout(() => {
-                if (email === 'a' && password === 'a' && user === 'Douglas') {
-                    router.replace('/');
-                    console.log('Conta criada com sucesso!');
-                } else {
-                    Alert.alert('Erro', 'Usuário ou senha inválidos!');
-                }
+            // 1. Converte a foto em texto (Base64) para o Firestore aceitar, se n da errado
+            const fotoEmString = await imageToBase64(image);
+
+            if (!fotoEmString) {
                 setLoading(false);
-            }, 2000);
+                return Alert.alert('Erro', 'Problema ao processar a foto.');
+            }
+
+            // Salva em usuarios no Firebase
+            await addDoc(collection(db, "usuarios"), {
+                nome: user,
+                email: email,
+                senha: password, 
+                foto: fotoEmString,
+                criadoEm: new Date()
+            });
+
+            setLoading(false);
+            Alert.alert('Sucesso!', 'Cadastro realizado com sucesso!');
+
+            // Volta para a tela inicial após cadastrar
+            router.replace('/');
 
         } catch (error) {
             setLoading(false);
-            console.log(error);
+            console.error("Erro ao salvar no Firestore:", error);
+            Alert.alert('Erro', 'Não foi possível salvar os dados no banco.');
         }
     }
 
+    
     return (
         <LinearGradient colors={['#ffffff', '#fff']} style={style.Container}>
             <StatusBar style="dark" />

@@ -11,22 +11,12 @@ import { useNavigation } from 'expo-router'; //para poder navegar entre as pagin
 import { StatusBar } from "expo-status-bar";
 import { SymbolView } from "expo-symbols";
 import { useTheme } from "@react-navigation/native";
+import { db } from '../firebaseConfig'; // Ajuste o caminho se necessário
+import { collection, query, where, getDocs } from "firebase/firestore";
 
 
 export default function Login() {
 
-    //comentei isso pois n é mais necessario, serve pra remover a barra de navegação. mas foi removida no _layout.tsx, porem, dx ai pra dar uma olhada dps, caso precise
-
-    {/*const navigation = useNavigation();
-    React.useLayoutEffect(() => {
-    navigation.setOptions({
-      headerShown: false, // Remove a barra de navegação somente na tela de login
-    });
-  }, [navigation]); */}
-
-
-    
-    
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [user, setUser] = useState('');
@@ -34,39 +24,58 @@ export default function Login() {
     const [isPasswordVisible, setIsPasswordVisible] = useState(false); // visibilidade da senha
     const [fontsLoaded] = useFonts({ StoryScript_400Regular }); // Carrega a fonte 
 
-
-
     if (!fontsLoaded) {
         return <ActivityIndicator size="large" color="#0000ff" />; // Exibe um indicador visual de loading
     }
 
+    //função pra fzr o login
 
     async function getLogin() {
-        try {
-            setLoading(true);
+    try {
+        setLoading(true);
 
-            if (!email || !password) {
-                setLoading(false); // reseta o icone de loading se não houver digitação ou se falhar
-                return Alert.alert('Atenção!', 'Informe os campos obrigatórios!');
-            }
-
-            // Simulação de verificação
-            setTimeout(() => {
-                if (email === 'a' && password === 'a') {
-                    router.replace('/home');  // Navega para a Home
-                    console.log('Logado com sucesso!')
-                } else {
-                    Alert.alert('Erro', 'Usuário ou senha incorretos!');
-                    console.log('Tente novamente')
-                }
-                setLoading(false);
-            }, 2000);
-
-        } catch (error) {
+        if (!email || !password) {
             setLoading(false);
-            console.log(error);
+            return Alert.alert('Atenção!', 'Informe os campos obrigatórios!');
         }
+
+        const usersRef = collection(db, "usuarios");
+        const valorDigitado = email.trim();
+
+        //busca o email
+        let q = query(usersRef, where("email", "==", valorDigitado));
+        let querySnapshot = await getDocs(q);
+
+        // se n achar o email, busca o usuario
+        if (querySnapshot.empty) {
+            q = query(usersRef, where("nome", "==", valorDigitado));
+            querySnapshot = await getDocs(q);
+        }
+
+        // se n tiver nd
+        if (querySnapshot.empty) {
+            setLoading(false);
+            return Alert.alert('Erro', 'Usuário ou E-mail não encontrado!');
+        }
+
+        const userData = querySnapshot.docs[0].data();
+
+        // verifica a senha
+        if (userData.senha === password) {
+            console.log('Logado com sucesso!');
+            router.replace('/home');
+        } else {
+            Alert.alert('Erro', 'Senha incorreta!');
+        }
+
+        //se tiver erro no login
+    } catch (error) {
+        console.error("Erro no login:", error);
+        Alert.alert('Erro', 'Houve um problema na conexão.');
+    } finally {
+        setLoading(false);
     }
+}
 
     return (
    
@@ -94,7 +103,7 @@ export default function Login() {
                     value={password}
                     onChangeText={setPassword}
                     placeholder="Senha"
-                    secureTextEntry={!isPasswordVisible} // Controle de visibilidade
+                    secureTextEntry={!isPasswordVisible} // visibilidade
                 />
                 <TouchableOpacity onPress={() => setIsPasswordVisible(!isPasswordVisible)}>
                     <MaterialIcons
