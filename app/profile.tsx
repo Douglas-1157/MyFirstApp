@@ -10,10 +10,8 @@ import { style } from "./styles";
 import { StatusBar } from "expo-status-bar";
 import { db } from './../firebaseConfig';
 import { collection, addDoc } from "firebase/firestore";
-
-
-
-
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { getFirestore, doc, setDoc } from "firebase/firestore";
 
 
 export default function Login() {
@@ -72,13 +70,11 @@ export default function Login() {
         try {
             setLoading(true);
 
-            // pra ver se colocou tudo
             if (!email || !password || !user || !image) {
                 setLoading(false);
                 return Alert.alert('Atenção!', 'Preencha todos os campos e selecione uma foto!');
             }
 
-            //  troca a foto pra string pra passar pro banco
             const fotoEmString = await imageToBase64(image);
 
             if (!fotoEmString) {
@@ -86,25 +82,36 @@ export default function Login() {
                 return Alert.alert('Erro', 'Problema ao carregar a foto.');
             }
 
-            // Salva em usuarios no Firebase. obs: da pra replicar e criar mais pastas no banco de dados 
-            await addDoc(collection(db, "usuarios"), {
+            const auth = getAuth();
+            //cria usuario no authentication
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const userAuth = userCredential.user;
+
+            //salva no  banco usanddo uid  
+            await setDoc(doc(db, "usuarios", userAuth.uid), {
                 nome: user,
                 email: email,
-                senha: password, 
                 foto: fotoEmString,
+                uid: userAuth.uid, 
                 criadoEm: new Date()
             });
 
             setLoading(false);
-            Alert.alert('Sucesso!', 'Cadastro realizado com sucesso!');
-
-            // Volta para a tela inicial após cadastrar
+            Alert.alert('Sucesso!', 'Conta criada com sucesso!');
             router.replace('/');
 
-        } catch (error) {
+        } catch (error: any) {
             setLoading(false);
-            console.error("Erro ao salvar no Firestore:", error);
-            Alert.alert('Erro', 'Não foi possível salvar os dados no banco.');
+            console.error("Erro no cadastro:", error);
+            
+            //erros normais
+            if (error.code === 'auth/email-already-in-use') {
+                Alert.alert('Erro', 'Este e-mail já está em uso.');
+            } else if (error.code === 'auth/weak-password') {
+                Alert.alert('Erro', 'A senha deve ter pelo menos 6 dígitos.');
+            } else {
+                Alert.alert('Erro', 'Não foi possível realizar o cadastro.');
+            }
         }
     }
 
