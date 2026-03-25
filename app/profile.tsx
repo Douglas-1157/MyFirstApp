@@ -15,7 +15,7 @@ import { getFirestore, doc, setDoc } from "firebase/firestore";
 
 
 export default function Login() {
-    //esses estados aq e pra guardar oq o usuario digitar
+
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [user, setUser] = useState('');
@@ -24,7 +24,6 @@ export default function Login() {
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [fontsLoaded] = useFonts({ StoryScript_400Regular });
 
-    //se a fonte n carregar, mostra um icone de loading na tela ate carregar
     if (!fontsLoaded) {
         return <ActivityIndicator size="large" color="#0000ff" />;
     }
@@ -40,7 +39,7 @@ export default function Login() {
         mediaTypes: ['images'], 
         allowsEditing: true, 
         aspect: [1, 1], 
-        quality: 0.1, // dimunui a qualidade da foto pra aceitar mais imagens
+        quality: 0.5, // dimunui a qualidade da foto pra aceitar mais imagens
     });
 
     if (!result.canceled) {
@@ -48,7 +47,7 @@ export default function Login() {
     }
 };
 
-    //O Firebase Firestore não aceitou o arquivo normal, então converte a imagem pra uma string gigante q chama d "base64"
+    //O Firebase Firestore não aceitou o arquivo normal, então converte a imagem pra uma string q chama d "base64"
     const imageToBase64 = async (uri: string) => {
         try {
             const response = await fetch(uri);

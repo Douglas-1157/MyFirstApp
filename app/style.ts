@@ -17,11 +17,12 @@ export const style = StyleSheet.create({
 
   },
 
-  Texto: {
+  Text: {
     color:"#000000",
-    paddingRight: '80%',
     fontSize: 30,
-    fontFamily: 'StoryScript_400Regular',
+    //fontFamily: 'StoryScript_400Regular',
+    marginTop: 10,
+    
   },
 
   boxTop: {
@@ -56,12 +57,27 @@ export const style = StyleSheet.create({
     
  },
 
-  Icon: {
-    position: 'absolute',
-    right: 20,
-    top: '50%',
-    transform: [{ translateY: -12 }], //ta mantendo o icone alinhado
+  Usuario: {
+    color:"#000000",
+    fontSize: 30,
+    //fontFamily: 'StoryScript_400Regular',
+
   },
+
+
+  userFoto: {
+  width: 55,
+  height: 55,
+  borderRadius: 100, 
+  borderWidth: 2,
+  borderColor: '#6A1B9A', 
+},
+
+  textUser: {
+    flexDirection: 'row',
+    
+    
+  }
 
   
   

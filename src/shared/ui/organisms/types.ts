@@ -1,4 +1,5 @@
 import { TextStyle } from "react-native";
+import { StyleProp, ViewStyle } from 'react-native';
 
 export interface CharacterAnimationParams {
   opacity: number;
@@ -41,4 +42,18 @@ export interface CharacterProps {
   enterTo: CharacterAnimationParams;
   exitFrom: CharacterAnimationParams;
   exitTo: CharacterAnimationParams;
+}
+
+export interface IGrainyGradient {
+  width?: number;
+  height?: number;
+  colors?: string[];
+  speed?: number;
+  animated?: boolean;
+  intensity?: number;
+  size?: number;
+  enabled?: boolean;
+  amplitude?: number;
+  brightness?: number;
+  style?: StyleProp<ViewStyle>;
 }
