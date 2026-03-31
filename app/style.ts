@@ -1,89 +1,101 @@
-import { themas } from "@/global/themes.";
-import { LinearGradient } from "expo-linear-gradient";
 import { Dimensions, StyleSheet } from "react-native";
-import { rgbaColor } from "react-native-reanimated/lib/typescript/Colors";
+
 const { width: screenWidth } = Dimensions.get('window');
-
-
-
-
 
 export const style = StyleSheet.create({
   Container: {
     flex: 1,
-    alignItems: 'center',
-    backgroundColor: '#ffffff',
-    
-
-  },
-
-  Text: {
-    color:"#000000",
-    fontSize: 30,
-    //fontFamily: 'StoryScript_400Regular',
-    marginTop: 10,
-    
+    backgroundColor: '#ffffff', 
   },
 
   boxTop: {
     width: '100%',
-    height: 200,
-    justifyContent: 'center',
+    paddingTop: 10,        
+    paddingHorizontal: 25,
+    paddingBottom: 25,      
+    backgroundColor: '#fff',
+    flexDirection: 'row', 
     alignItems: 'center',
-    backgroundColor: '#fff'
+    justifyContent: 'space-between',
   },
-
-  boxInput: {
-    width: 300,
-    height: 50,
-    borderWidth: 1,
-    borderRadius: 60,
-    marginTop: 135,
-    marginRight: 50,
-    alignItems: 'center',
-    paddingHorizontal: 5,
-    borderColor: '#6b0dc4',
-    paddingLeft: 5,
-  },
-
-
- Input: {
-    width: '100%',
-    height: '100%',
-    paddingLeft: 15,
-    paddingRight: 30,
-    fontSize: 16,
-    borderRadius: 60,
-    
- },
-
-  Usuario: {
-    color:"#000000",
-    fontSize: 30,
-    //fontFamily: 'StoryScript_400Regular',
-
-  },
-
-
-  userFoto: {
-  width: 55,
-  height: 55,
-  borderRadius: 100, 
-  borderWidth: 2,
-  borderColor: '#6A1B9A', 
-},
 
   textUser: {
-    flexDirection: 'row',
-    
-    
+    flexDirection: 'column', 
+  },
+
+  Text: {
+    color: "#888", 
+    fontSize: 18,
+    fontWeight: '500',
+  },
+
+  Usuario: {
+    color: "#000",
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginTop: 0,
+  },
+
+  userFoto: {
+    width: 55,
+    height: 55,
+    borderRadius: 27.5,   
+    borderWidth: 2,
+    borderColor: '#6b0dc4', 
+  },
+
+
+  Input: {
+    flex: 1,
+    height: '100%',
+    fontSize: 16,
+    color: '#000',
+  },
+
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 15,
+  },
+
+  cardVazio: {
+    width: '90%',
+    height: 190,
+    alignSelf: 'center',
+    backgroundColor: '#FFF',
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#E0E0E0',
+    borderStyle: 'dashed',
+    marginVertical: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
+    marginTop: 30
+  },
+
+  cardVazioText: {
+    marginTop: 15,
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#5e5ce6', 
+  },
+
+  cardVazioSub: {
+    fontSize: 14,
+    color: '#AAA',
+    marginTop: 5,
   }
 
   
+
   
 
-
-})
-
+});
 
 export default style;

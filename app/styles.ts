@@ -1,256 +1,138 @@
-import { themas } from "@/global/themes.";
-import { LinearGradient } from "expo-linear-gradient";
 import { Dimensions, StyleSheet } from "react-native";
-import { rgbaColor } from "react-native-reanimated/lib/typescript/Colors";
-const { width: screenWidth } = Dimensions.get('window');
 
-
-
-
+const { width, height } = Dimensions.get('window');
 
 export const style = StyleSheet.create({
-  Container: {
-    flex: 1,
-    alignItems: 'center',
-    backgroundColor: '#fff'
-
-
-  },
-  boxTop: {
-    height: Dimensions.get('window').height / 3, //define uma melhor responsividade para a tela do usuario
-    width: '100%',
-    //backgroundColor:'red',
-    alignItems: "center",
-    justifyContent: "center"
-  },
-  boxMid: {
-    height: Dimensions.get('window').height / 4, //define uma melhor responsividade para a tela do usuario
-    width: '100%',
-    //backgroundColor:'green',
-    paddingHorizontal: 37
-
-  },
-  boxBottom: {
-    height: Dimensions.get('window').height / 3, //define uma melhor responsividade para a tela do usuario
-    width: '100%',
-    //backgroundColor:'blue',
-    alignItems: "center",
-    padding: 15,
-    flex: 1
-
-
-  },
-  image: {
-    marginTop: 50,
-    width: 150,
-    height: 150,
-    resizeMode: 'cover', //garente que a imagem não estique
-    transform: [{ scale: 1.35 }],
-
-
-  },
-  text: {
-    fontFamily: 'StoryScript_400Regular',
-    fontSize: 40,
-    //fontWeight: 'bold',
-    marginTop: 0,
-    color: '#6b0dc4',
-
-
-
-  },
-
-  titleInput: {
-    marginLeft: 5,
-    color: themas.colors.gray,
-    marginTop: 20
-  },
-  boxInput: {
-    width: 300,
-    height: 70,
-    borderWidth: 1,
-    borderRadius: 60,
-    marginTop: 30,
-    flexDirection: 'row', //coloca o icone na linha, ao inves de na parte de baixo
-    alignItems: 'center',
-    paddingHorizontal: 5,
-    //backgroundColor:themas.colors.lightGray,
-    borderColor: '#6b0dc4',
-    paddingLeft: 5
-  },
-
-  Input: {
-    height: '100%',
-    width: '90%',
-    borderRadius: 40,
-    paddingLeft: 5
-    //backgroundColor: 'gray'
-
-  },
-
-  Button: {
-    width: 300,
-    height: 70,
-    marginTop: 15,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 25,
-    borderColor: '#000000',
-    shadowColor: "#000000",
-    shadowOffset: {
-      width: 20,
-      height: 20,
+    Container: {
+        flex: 1,
+        backgroundColor: '#F5F5F5',
+        paddingHorizontal: 35,
     },
-    shadowOpacity: 0.58,
-    shadowRadius: 16.00,
-    elevation: 24,
+    boxTop: {
+        height: height * 0.35,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingTop: 40,
+    },
+    circuloFoto: {
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+        backgroundColor: '#E6DFF3',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 15,
+        position: 'relative',
+        borderWidth: 1,
+        borderColor: 'rgba(107, 13, 196, 0.1)',
+    },
+    imageFoto: {
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+    },
+    iconPlus: {
+        position: 'absolute',
+        bottom: 5,
+        right: 0,
+        backgroundColor: '#6b0dc4',
+        borderRadius: 12,
+        width: 24,
+        height: 24,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 2,
+        borderColor: '#fff',
+    },
+    textTitle: {
+        fontSize: 28,
+        fontWeight: 'bold',
+        color: '#333',
 
-  },
+    },
+    textSubtitle: {
+        fontSize: 14,
+        color: '#777',
+        marginTop: 5,
+    },
+    boxMid: {
+        width: '100%',
+    },
+    boxInput: {
+        width: '100%',
+        height: 55,
+        backgroundColor: '#FFF',
+        borderRadius: 12,
+        marginTop: 15,
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 15,
+        elevation: 1,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 2,
+    },
+    Input: {
+        flex: 1,
+        height: '100%',
+        marginLeft: 12,
+        fontSize: 15,
+        color: '#333',
+    },
+    boxBottom: {
+        marginTop: 30,
+        alignItems: "center",
+    },
+    Button: {
+        width: width - 70,
+        height: 55,
+        borderRadius: 12,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    TextButton: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#fff',
+        letterSpacing: 1,
+    },
+    textInfo: {
+        fontSize: 12,
+        color: '#999',
+        marginTop: 10,
+    },
+    footerContainer: {
+        flexDirection: 'row',
+        marginTop: 40,
+        alignItems: 'center',
+    },
+    TextBottom: {
+        fontSize: 15,
+        color: '#444',
+    },
+    TextBottomCreate: {
+        fontSize: 15,
+        color: '#6b0dc4',
+        fontWeight: 'bold',
+    },
 
-  ButtonContent: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-    paddingVertical: 15,
-    paddingHorizontal: 30,
-  },
+    recoveryButton: {
+        alignSelf: 'flex-end', 
+        marginTop: 10,
+        paddingVertical: 5,
+    },
+    TextRecoveryColor: {
+        color: '#6b0dc4',
+        fontSize: 14,
+        fontWeight: '500',
+    },
 
-  TextButton: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#fff',
-    letterSpacing: 1,
-  },
-
-  TextBottom: {
-    fontSize: 16,
-    marginTop: 85,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-
-  TextBottomCreate: {
-    fontSize: 16,
-    color: '#6b0dc4',
-    fontWeight: 'bold',
-    marginLeft: 0,
-    padding: 0,
-    marginTop: 0,
-
-
-  },
-
- TextRecovery: {
-    fontSize: 16,
-    color: '#000', 
-},
-
-TextRecoveryColor: {
-    fontSize: 16,
-    color: '#6b0dc4',
-    fontWeight: 'bold',
-},
-
-recoveryContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 20, 
-},
-
-  BoxText: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: -70
-
-  },
-
-  center: {
-    flex: 1,
-    alignItems: "center",
-    gap: 10,
-    top: 180,
-  },
-
-  title: {
-    fontSize: 26,
-    fontWeight: "600",
-    letterSpacing: -0.3,
-  },
-
-  TextRecoveryColorProfile: {
-    color: '#000'
-  },
-
-  containerFoto: {
-    marginBottom: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  circuloFoto: {
-    width: 120,
-    height: 120,
-    borderRadius: 120,
-    backgroundColor: '#E6DFF3',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#6b0dc4',
-    marginTop: 0,
-  },
-
-  imageFoto: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 120,
-    resizeMode: 'cover'
-  },
-
-  iconPlus: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    backgroundColor: '#6b0dc4',
-    borderRadius: 12,
-    width: 24,
-    height: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#fff',
-  },
-
-  TextBottomCreateRecovery: {
-    fontSize: 16,
-    color: '#6b0dc4',
-    fontWeight: 'bold',
-    marginLeft: 0,
-    padding: 0,
-    marginTop: 0
     
-  },
 
-  TextBottomRecovery: {
-    fontSize: 16,
-    marginTop: 300,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
 
-  },
 
-  mensagemRecovery:{
-    marginTop: 20,
-
-  }
 
 });
 
-
-
-
-
-export default style;
+export default style; 
