@@ -8,8 +8,8 @@ import * as ImageManipulator from 'expo-image-manipulator';
 import { style } from "./styles";
 import { StatusBar } from "expo-status-bar";
 import { db } from './../firebaseConfig';
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
+import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
+import { doc, setDoc, getDocs, collection, query, where } from "firebase/firestore";
 
 export default function Cadastro() {
     const [email, setEmail] = useState('');
@@ -18,6 +18,12 @@ export default function Cadastro() {
     const [image, setImage] = useState<string | null>(null); 
     const [loading, setLoading] = useState(false);
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
+    // Validação de Senha: 6+ caracteres, 1 MAIÚSCULA, 1 minúscula, 1 número e 1 especial
+    const validarSenhaForte = (senha: string) => {
+        const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{6,}$/;
+        return regex.test(senha);
+    };
 
     const pickImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -52,31 +58,74 @@ export default function Cadastro() {
     };
 
     async function handleRegister() {
-        if (!email || !password || !user || !image) {
-            return Alert.alert('Atenção!', 'Preencha todos os campos e selecione uma foto!');
+        // 1. Campos obrigatórios e limite de caracteres
+        if (!email || !password || !user) {
+            return Alert.alert('Atenção!', 'Preencha todos os campos obrigatórios!');
+        }
+
+        if (user.length > 15) {
+            return Alert.alert('Usuário muito longo', 'O nome de usuário deve ter no máximo 15 caracteres.');
+        }
+
+        // 2. Validar Senha Forte (Maiúscula, Minúscula, Número e Especial)
+        if (!validarSenhaForte(password)) {
+            return Alert.alert(
+                'Senha Fraca', 
+                'A senha deve ter no mínimo 6 caracteres e conter:\n• Letra maiúscula\n• Letra minúscula\n• Número\n• Caractere especial (ex: @, #, $)'
+            );
         }
 
         try {
             setLoading(true);
-            const fotoBase64 = await processarImagem(image);
-            if (!fotoBase64) throw new Error("Erro no processamento");
+
+            // 3. Verificar se o NOME DE USUÁRIO já existe no Firestore
+            const q = query(collection(db, "usuarios"), where("nome", "==", user.trim()));
+            const querySnapshot = await getDocs(q);
+            if (!querySnapshot.empty) {
+                setLoading(false);
+                return Alert.alert('Erro', 'Este nome de usuário já está sendo usado por outra pessoa.');
+            }
+
+            // 4. Processar imagem se houver
+            let fotoBase64 = null;
+            if (image) {
+                fotoBase64 = await processarImagem(image);
+            }
 
             const auth = getAuth();
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            
+            // 5. Criar usuário no Firebase Auth
+            const userCredential = await createUserWithEmailAndPassword(auth, email.trim(), password);
             const userAuth = userCredential.user;
 
+            // 6. Enviar e-mail de verificação
+            await sendEmailVerification(userAuth);
+
+            // 7. Salvar dados no Firestore
             await setDoc(doc(db, "usuarios", userAuth.uid), {
-                nome: user,
-                email: email,
+                nome: user.trim(),
+                email: email.toLowerCase().trim(),
                 foto: fotoBase64,
                 uid: userAuth.uid, 
-                criadoEm: new Date()
+                criadoEm: new Date(),
             });
 
-            Alert.alert('Sucesso!', 'Conta criada com sucesso!');
-            router.replace('/');
+            Alert.alert(
+                'Conta Criada!', 
+                'Enviamos um e-mail de verificação. Por favor, confirme seu e-mail antes de fazer o primeiro login.',
+                [{ text: 'OK', onPress: () => router.replace('/') }]
+            );
+            
         } catch (error: any) {
-            Alert.alert('Erro', 'Não foi possível realizar o cadastro.');
+            console.log("Erro no cadastro:", error.code);
+            
+            if (error.code === 'auth/email-already-in-use') {
+                Alert.alert('E-mail em uso', 'Este endereço de e-mail já está vinculado a outra conta.');
+            } else if (error.code === 'auth/invalid-email') {
+                Alert.alert('E-mail Inválido', 'O formato do e-mail digitado não é válido.');
+            } else {
+                Alert.alert('Erro no Cadastro', 'Não foi possível criar sua conta agora. Tente novamente.');
+            }
         } finally {
             setLoading(false);
         }
@@ -99,8 +148,8 @@ export default function Cadastro() {
                         </View>
                     </View>
                 </TouchableOpacity>
-                <Text style={style.textTitle}>Criar conta</Text>
-                <Text style={style.textSubtitle}>Comece a organizar sua vida</Text>
+                <Text style={style.textTitle}>Crie sua conta</Text>
+                <Text style={style.textSubtitle}>Comece a organizar a sua vida!</Text>
             </View>
 
             <View style={style.boxMid}>
@@ -112,6 +161,8 @@ export default function Cadastro() {
                         onChangeText={setUser}
                         placeholder='Usuário'
                         placeholderTextColor="#999"
+                        autoCapitalize="none"
+                        maxLength={15}
                     />
                 </View>
 
@@ -121,8 +172,10 @@ export default function Cadastro() {
                         style={style.Input}
                         value={email}
                         onChangeText={setEmail}
-                        placeholder='Email'
+                        placeholder='E-mail'
                         placeholderTextColor="#999"
+                        keyboardType="email-address"
+                        autoCapitalize="none"
                     />
                 </View>
 
@@ -147,7 +200,7 @@ export default function Cadastro() {
             </View>
 
             <View style={style.boxBottom}>
-                <TouchableOpacity onPress={handleRegister} activeOpacity={0.8}>
+                <TouchableOpacity onPress={handleRegister} activeOpacity={0.8} disabled={loading}>
                     <LinearGradient
                         start={{ x: 0, y: 0 }}
                         end={{ x: 1, y: 0 }}

@@ -8,7 +8,7 @@ import { style } from "./styles";
 import { StatusBar } from "expo-status-bar";
 import { db } from '../firebaseConfig'; 
 import { collection, query, where, getDocs } from "firebase/firestore";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { getAuth, signInWithEmailAndPassword, signOut } from "firebase/auth"; // Adicionado signOut
 
 export default function Login() {
     const [email, setEmail] = useState('');
@@ -29,6 +29,7 @@ export default function Login() {
             const valorDigitado = email.trim();
             let emailFinal = valorDigitado;
 
+            // Busca por Username se não tiver '@'
             if (!valorDigitado.includes('@')) {
                 const q = query(usersRef, where("nome", "==", valorDigitado));
                 const querySnapshot = await getDocs(q);
@@ -40,11 +41,26 @@ export default function Login() {
                 emailFinal = querySnapshot.docs[0].data().email;
             }
 
-            await signInWithEmailAndPassword(auth, emailFinal, password);
+            // 1. Tenta autenticar
+            const userCredential = await signInWithEmailAndPassword(auth, emailFinal, password);
+            const user = userCredential.user;
+
+            // 2. Trava de Verificação de E-mail
+            if (!user.emailVerified) {
+                await signOut(auth); // Desloga o usuário da sessão atual
+                setLoading(false);
+                return Alert.alert(
+                    'E-mail não verificado', 
+                    'Você precisa confirmar seu e-mail antes de entrar. Verifique sua caixa de entrada ou spam.'
+                );
+            }
+
+            // 3. Se passou pela trava, vai para Home
             router.replace('/home');
 
         } catch (error: any) {
             console.error("Erro no login:", error.code);
+            // Mensagem amigável para erro de senha ou usuário
             Alert.alert('Erro', 'E-mail/Usuário ou senha incorretos.');
         } finally {
             setLoading(false);
@@ -69,6 +85,7 @@ export default function Login() {
                         onChangeText={setEmail}
                         placeholder="Usuário ou Email"
                         placeholderTextColor="#999"
+                        autoCapitalize="none"
                     />
                 </View>
 
@@ -100,7 +117,7 @@ export default function Login() {
             </View>
 
             <View style={style.boxBottom}>
-                <TouchableOpacity onPress={() => getLogin()} activeOpacity={0.8}>
+                <TouchableOpacity onPress={() => getLogin()} activeOpacity={0.8} disabled={loading}>
                     <LinearGradient
                         start={{ x: 0, y: 0 }}
                         end={{ x: 1, y: 0 }}

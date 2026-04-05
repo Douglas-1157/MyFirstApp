@@ -30,24 +30,25 @@ const InputField = ({ label, ...props }: any) => (
 );
 
 const SubtaskItem = ({ item, onToggle, onRemove, color }: any) => (
-  <View style={styles.subtaskItem}>
-    <TouchableOpacity 
-      style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }} 
+  <View style={[styles.subtaskItem, { alignItems: 'flex-start', paddingVertical: 12 }]}>
+    <TouchableOpacity
+      style={{ flexDirection: 'row', alignItems: 'flex-start', flex: 1 }}
       onPress={onToggle}
     >
-      <MaterialIcons 
-        name={item.completed ? "check-circle" : "radio-button-unchecked"} 
-        size={24} 
-        color={item.completed ? "#34c759" : color} 
+      <MaterialIcons
+        name={item.completed ? "check-circle" : "radio-button-unchecked"}
+        size={24}
+        color={item.completed ? "#34c759" : color}
+        style={{ marginTop: 2 }}
       />
       <Text style={[
-        { marginLeft: 10, color: '#333', fontSize: 16, flex: 1 },
+        { marginLeft: 10, color: '#333', fontSize: 16, flex: 1, flexWrap: 'wrap' },
         item.completed && { color: '#AAA', textDecorationLine: 'line-through' }
       ]}>
         {item.text}
       </Text>
     </TouchableOpacity>
-    <TouchableOpacity onPress={onRemove} style={{ padding: 5 }}>
+    <TouchableOpacity onPress={onRemove} style={{ paddingHorizontal: 8, paddingTop: 2 }}>
       <MaterialIcons name="delete-outline" size={22} color="#FF3B30" />
     </TouchableOpacity>
   </View>
@@ -64,29 +65,27 @@ export default function EditTarefa() {
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [newSubtask, setNewSubtask] = useState(""); 
+  const [newSubtask, setNewSubtask] = useState("");
   const [selectedGradient, setSelectedGradient] = useState<readonly string[]>(CORES[0].gradient);
   const [subtasks, setSubtasks] = useState<any[]>([]);
   const [progress, setProgress] = useState(0);
 
-  // Estados de Data e Hora
   const [date, setDate] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
   const [mode, setMode] = useState<'date' | 'time'>('date');
+
+  const onChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
+    setShowPicker(false);
+    if (selectedDate) setDate(selectedDate);
+  };
 
   const showMode = (currentMode: 'date' | 'time') => {
     setMode(currentMode);
     setShowPicker(true);
   };
 
-  const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
-    setShowPicker(false);
-    if (selectedDate) setDate(selectedDate);
-  };
-
-  // Função da IA
   const handleGenerateWithAI = async () => {
-    if (!aiPrompt.trim()) return Alert.alert("IA", "Diga o que você quer planejar.");
+    if (!aiPrompt.trim()) return Alert.alert("IA", "Diga o que você quer criar.");
     setIaLoading(true);
     try {
       const chatCompletion = await groq.chat.completions.create({
@@ -94,23 +93,29 @@ export default function EditTarefa() {
           {
             role: "system",
             content: `Você é o Motor de Execução do UPLY. 
-            REGRAS: 1. Titulo max 15 carac. 2. Descrição max 60 carac. 3. Crie 5-8 subtarefas.
+            REGRAS OBRIGATÓRIAS:
+            1. TITULO: não pode passsar de 15 caracteres.
+            2. DESCRICAO: no máximo 60 caracteres.
+            3. SUBTAREFAS: Crie entre 7 a 10 tarefas.
             FORMATO JSON: {"titulo": "...", "descricao": "...", "cor_index": 0-6, "subtarefas": ["..."]}`
           },
-          { role: "user", content: `Plano para: ${aiPrompt}` },
+          { role: "user", content: `Plano curto para: ${aiPrompt}` },
         ],
         model: "llama-3.1-8b-instant",
         response_format: { type: "json_object" },
+        temperature: 0.6,
       });
 
       const data = JSON.parse(chatCompletion.choices[0].message.content || "{}");
-      setTitle(data.titulo || "");
-      setDescription(data.descricao || "");
-      if (data.cor_index !== undefined) setSelectedGradient(CORES[data.cor_index].gradient);
+      setTitle((data.titulo || "Tarefa").substring(0, 15));
+      setDescription((data.descricao || "").substring(0, 60));
+      if (typeof data.cor_index === 'number' && CORES[data.cor_index]) {
+        setSelectedGradient(CORES[data.cor_index].gradient);
+      }
       if (data.subtarefas) {
         setSubtasks(data.subtarefas.map((t: string) => ({
-          id: Date.now().toString() + Math.random(),
-          text: t,
+          id: `${Date.now()}-${Math.random()}`,
+          text: t.substring(0, 40),
           completed: false
         })));
       }
@@ -121,10 +126,7 @@ export default function EditTarefa() {
   useEffect(() => {
     const loadTask = async () => {
       try {
-        if (!id || id === 'novo' || id.toString().includes('exemplo')) {
-          setLoading(false);
-          return;
-        }
+        if (!id || id === 'novo') { setLoading(false); return; }
         const snap = await getDoc(doc(db, "tasks", id as string));
         if (snap.exists()) {
           const data = snap.data();
@@ -152,24 +154,23 @@ export default function EditTarefa() {
   }, [subtasks]);
 
   const handleSave = async () => {
+    if (!user) return Alert.alert("Erro", "Logue-se primeiro.");
     if (!title.trim()) return Alert.alert("Atenção", "Título obrigatório.");
     try {
-      const isNew = !id || id === 'novo' || id.toString().includes('exemplo');
-      const finalId = isNew ? `task_${Date.now()}_${user?.uid}` : id;
-      
+      const isNew = !id || id === 'novo';
+      const finalId = isNew ? `task_${Date.now()}_${user.uid}` : id;
       await setDoc(doc(db, "tasks", finalId as string), {
-        userId: user?.uid,
-        title, 
-        description, 
+        userId: user.uid,
+        title,
+        description,
         gradient: selectedGradient,
-        subtasks, 
-        progress, 
+        subtasks,
+        progress,
         date: format(date, 'dd-MM-yyyy'),
         time: format(date, 'HH:mm'),
         updatedAt: new Date()
       }, { merge: true });
-
-      router.replace("/(tabs)/home"); 
+      router.replace("/(tabs)/home");
     } catch (e) { Alert.alert("Erro ao salvar"); }
   };
 
@@ -181,7 +182,7 @@ export default function EditTarefa() {
         <TouchableOpacity onPress={() => router.back()}>
           <MaterialIcons name="close" size={28} color="#333" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{id === 'novo' ? "Nova Tarefa" : "Editar"}</Text>
+        <Text style={styles.headerTitle}>{id === 'novo' ? "Crie sua tarefa" : "Editar Tarefa"}</Text>
         <TouchableOpacity onPress={handleSave}>
           <Text style={{ color: selectedGradient[0], fontWeight: 'bold', fontSize: 16 }}>Salvar</Text>
         </TouchableOpacity>
@@ -189,13 +190,12 @@ export default function EditTarefa() {
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
         
-        {/* ASSISTENTE IA */}
         <View style={[styles.inputGroup, { marginTop: 10 }]}>
           <Text style={[styles.label, { color: selectedGradient[0] }]}>✨ Assistente de tarefas</Text>
           <View style={{ flexDirection: 'row' }}>
             <TextInput
               style={[styles.input, { flex: 1, borderStyle: 'dashed', borderColor: selectedGradient[0] }]}
-              placeholder="O que vamos fazer?"
+              placeholder="Ex: Fazer café..."
               value={aiPrompt}
               onChangeText={setAiPrompt}
             />
@@ -209,19 +209,25 @@ export default function EditTarefa() {
           </View>
         </View>
 
-        {/* PREVIEW CARD COM GRADIENTE */}
+        {/* CARD DE EXEMPLO DINÂMICO */}
         <LinearGradient
           colors={selectedGradient as any}
-          style={[styles.cardStats, { borderRadius: 24, padding: 20, marginBottom: 20 }]}
+          style={[styles.cardStats, { borderRadius: 24, padding: 20, marginBottom: 20, height: 'auto', minHeight: 110 }]}
         >
-          <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#fff' }}>{title || "Título"}</Text>
-          <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13, marginTop: 4 }}>
-            {description || "Sua descrição aparecerá aqui..."}
+          <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#fff' }} numberOfLines={1}>
+            {title || "Título"}
           </Text>
+          
+          {description ? (
+            <Text style={{ color: 'rgba(255,255,255,0.9)', fontSize: 13, marginTop: 4 }} numberOfLines={2}>
+              {description}
+            </Text>
+          ) : null}
+
           <View style={{ marginTop: 15 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-              <MaterialIcons name="event" size={14} color="#fff" />
-              <Text style={{ color: '#fff', fontSize: 12, marginLeft: 5 }}>
+              <MaterialIcons name="event" size={14} color="rgba(255,255,255,0.8)" />
+              <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 12, marginLeft: 4 }}>
                 {format(date, 'dd/MM/yyyy')} às {format(date, 'HH:mm')}
               </Text>
             </View>
@@ -232,16 +238,8 @@ export default function EditTarefa() {
         </LinearGradient>
 
         <InputField label="Título" value={title} onChangeText={setTitle} maxLength={15} />
-        
-        <InputField 
-          label="Descrição" 
-          value={description} 
-          onChangeText={setDescription}
-          multiline
-          maxLength={60}
-        />
+        <InputField label="Descrição" value={description} onChangeText={setDescription} multiline maxLength={60} />
 
-        {/* SELETOR DE DATA E HORA */}
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Data e Horário</Text>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -264,54 +262,51 @@ export default function EditTarefa() {
         </View>
 
         {showPicker && (
-          <DateTimePicker value={date} mode={mode} is24Hour={true} onChange={onDateChange} />
+          <DateTimePicker
+            value={date}
+            mode={mode}
+            is24Hour={true}
+            display="default"
+            onChange={onChange}
+          />
         )}
 
-        {/* SELETOR DE CORES */}
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Estilo do Card</Text>
+          <Text style={styles.label}>Cores</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {CORES.map(cor => (
-              <TouchableOpacity 
-                key={cor.id} 
-                onPress={() => setSelectedGradient(cor.gradient)}
-                style={{ 
-                  width: 48, height: 48, borderRadius: 24, 
-                  marginRight: 12, padding: 3,
-                  borderWidth: 2,
-                  borderColor: selectedGradient[0] === cor.gradient[0] ? '#333' : 'transparent'
-                }}
-              >
-                <LinearGradient colors={cor.gradient as any} style={{ flex: 1, borderRadius: 20 }} />
-              </TouchableOpacity>
-            ))}
+            {CORES.map(cor => {
+              const isSelected = selectedGradient[0] === cor.gradient[0];
+              return (
+                <TouchableOpacity
+                  key={cor.id}
+                  onPress={() => setSelectedGradient(cor.gradient)}
+                  activeOpacity={0.8}
+                  style={{
+                    width: 50, height: 50, borderRadius: 25,
+                    justifyContent: 'center', alignItems: 'center', marginRight: 12,
+                    borderWidth: isSelected ? 2 : 0, borderColor: '#333',
+                  }}
+                >
+                  <LinearGradient colors={cor.gradient as any} style={{ width: 40, height: 40, borderRadius: 20 }} />
+                </TouchableOpacity>
+              );
+            })}
           </ScrollView>
         </View>
 
-        {/* SUBTAREFAS */}
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Lista de Tarefas</Text>
+          <Text style={styles.label}>Tarefas</Text>
           <View style={{ flexDirection: 'row', marginBottom: 15 }}>
-            <TextInput 
-              style={[styles.input, { flex: 1, marginBottom: 0 }]} 
-              placeholder="Adicionar item..." 
-              value={newSubtask} 
-              onChangeText={setNewSubtask} 
-            />
-            <TouchableOpacity 
-              onPress={() => {
-                if (!newSubtask.trim()) return;
-                setSubtasks([...subtasks, { id: Date.now().toString(), text: newSubtask, completed: false }]);
-                setNewSubtask("");
-              }} 
+            <TextInput style={[styles.input, { flex: 1, marginBottom: 0 }]} placeholder="Crie sua tarefa" value={newSubtask} onChangeText={setNewSubtask} />
+            <TouchableOpacity
+              onPress={() => { if (!newSubtask.trim()) return; setSubtasks([...subtasks, { id: Date.now().toString(), text: newSubtask, completed: false }]); setNewSubtask(""); }}
               style={{ backgroundColor: selectedGradient[0], padding: 15, borderRadius: 15, marginLeft: 10 }}
             >
               <MaterialIcons name="add" size={24} color="#FFF" />
             </TouchableOpacity>
           </View>
-
           {subtasks.map(item => (
-            <SubtaskItem 
+            <SubtaskItem
               key={item.id}
               item={item}
               color={selectedGradient[0]}
